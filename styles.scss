@@ -1,0 +1,645 @@
+/* =========================================
+   RESET / BASE
+   ========================================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+header {
+  height: 75px;
+  background-color: black;
+  width: 100%;
+}
+
+main {
+  color: white;
+  overflow: hidden;
+}
+
+/* =========================================
+   GLOBAL CSS VARIABLES
+   ========================================= */
+:root {
+  --lightrope-scale: 1;
+  --lightrope-brightness: 0.75;
+}
+
+/* =========================================
+   CHRISTMAS LIGHT ROPE
+   ========================================= */
+.lightrope {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1000;
+
+  transform-origin: top center;
+  transform: translate(-50%, calc(-8px * (var(--lightrope-scale) - 1))) scale(var(--lightrope-scale));
+
+  li {
+    position: relative;
+    display: inline-block;
+    list-style: none;
+
+    width: 12px;
+    height: 28px;
+    margin: 5px 20px 20px;
+    border-radius: 50%;
+
+    --bulb-dim: #7e2c21;
+    --bulb-bright: #e46f5c;
+
+    background: var(--bulb-dim);
+    box-shadow: 0 8px 22px rgba(255, 255, 255, 0.18);
+
+    animation: bulb-blink 1.6s ease-in-out infinite alternate;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: -4.6667px;
+      left: 1px;
+      width: 10px;
+      height: 9.3333px;
+      border-radius: 3px;
+      background: #134413;
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: -18px;
+      left: 9px;
+      width: 52px;
+      height: 18px;
+      border-bottom: 2px solid #174700;
+      border-radius: 50%;
+    }
+
+    &:first-child {
+      margin-left: -40px;
+    }
+
+    &:last-child::after {
+      content: none;
+    }
+  }
+
+  /* ---------- Color Palette (SCSS) ---------- */
+  $palette: (
+    (#7e2c21, #e46f5c),
+    // red
+    (#5b4869, #a487c4),
+    // plum
+    (#30553a, #5fa372),
+    // green
+    (#b9ae9a, #f4e5cf),
+    // warm white
+    (#8b6a2f, #f0c566),
+    // gold
+    (#2e395e, #4c63a8) // blue
+  );
+
+  @for $i from 1 through length($palette) {
+    $pair: nth($palette, $i);
+    li:nth-child(6n + #{$i}) {
+      --bulb-dim: #{nth($pair, 1)};
+      --bulb-bright: #{nth($pair, 2)};
+    }
+  }
+
+  /* ---------- Animation Timing (SCSS) ---------- */
+  $durations: (("2n + 1", 1.8s), ("3n + 1", 1.3s), ("4n + 2", 2.2s), ("5n + 3", 1.1s));
+
+  @each $rule in $durations {
+    li:nth-child(#{nth($rule, 1)}) {
+      animation-duration: nth($rule, 2);
+    }
+  }
+
+  $delays: (("7n + 4", 0.4s), ("9n + 5", 0.9s));
+
+  @each $rule in $delays {
+    li:nth-child(#{nth($rule, 1)}) {
+      animation-delay: nth($rule, 2);
+    }
+  }
+}
+
+/* =========================================
+   LIGHT BLINK ANIMATION
+   ========================================= */
+@keyframes bulb-blink {
+  0%,
+  100% {
+    background: var(--bulb-dim);
+    opacity: 0.65;
+  }
+
+  50% {
+    background: var(--bulb-bright);
+    opacity: calc(0.65 + 0.35 * var(--lightrope-brightness));
+  }
+}
+
+/* =========================================
+   RESPONSIVE TUNING
+   ========================================= */
+@media (max-width: 1024px) {
+  :root {
+    --lightrope-scale: 0.9;
+    --lightrope-brightness: 0.5;
+  }
+}
+
+@media (max-width: 600px) {
+  :root {
+    --lightrope-scale: 0.8;
+    --lightrope-brightness: 0.75;
+  }
+
+  .lightrope li {
+    margin: 5px 14px 14px;
+  }
+}
+
+/* =========================================
+   BACKGROUND / STARS
+   ========================================= */
+body {
+  background: radial-gradient(1px 1px at 10% 20%, rgba(255, 255, 255, 0.25), transparent 70%),
+    radial-gradient(1px 1px at 80% 35%, rgba(255, 255, 255, 0.25), transparent 70%),
+    radial-gradient(1.5px 1.5px at 30% 10%, rgba(255, 255, 255, 0.2), transparent 75%),
+    radial-gradient(circle at 50% -10%, rgba(255, 255, 255, 0.1), transparent 60%),
+    linear-gradient(to bottom, #0a0f1a, #000);
+
+  background-attachment: fixed;
+  color: #eee;
+}
+
+/* =========================================
+   HERO + SNOW
+   ========================================= */
+.hero {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(to bottom, #180c5c 0%, #06021c 70%, #0a0f1a 100%);
+}
+
+.snow-container {
+  width: 100%;
+  height: 100%;
+  position: absolute; //had position  fixed  but annoying  // better on top of the page and duplicate maybe also on bottom
+  top: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.snowflake {
+  position: absolute;
+  color: snow;
+  animation: fallSnow linear infinite;
+}
+
+// index, left, duration, size
+$snowflakes: (
+  (1, 5%, 8s, 18px),
+  (2, 10%, 12s, 21px),
+  (3, 15%, 9s, 16px),
+  (4, 20%, 14s, 20px),
+  (5, 25%, 7s, 18px),
+  (6, 30%, 11s, 28px),
+  (7, 35%, 10s, 30px),
+  (8, 40%, 13s, 27px),
+  (9, 45%, 8s, 12px),
+  (10, 50%, 8s, 18px),
+  (11, 55%, 12s, 31px),
+  (12, 60%, 9s, 20px),
+  (13, 65%, 14s, 16px),
+  (14, 70%, 7s, 32px),
+  (15, 75%, 11s, 17px),
+  (16, 80%, 10s, 25px),
+  (17, 85%, 13s, 17px),
+  (18, 90%, 8s, 32px)
+);
+
+@each $flake in $snowflakes {
+  .snowflake:nth-child(#{nth($flake, 1)}) {
+    left: nth($flake, 2);
+    animation-duration: nth($flake, 3);
+    animation-delay: -2s;
+    font-size: nth($flake, 4);
+  }
+}
+
+@keyframes fallSnow {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+  }
+
+  25% {
+    transform: translateY(25vh) rotate(90deg) translateX(15px);
+  }
+
+  50% {
+    transform: translateY(50vh) rotate(180deg) translateX(-15px);
+  }
+
+  75% {
+    transform: translateY(75vh) rotate(270deg) translateX(15px);
+  }
+
+  100% {
+    transform: translateY(95vh) rotate(360deg) translateX(0);
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.stars use {
+  animation: twinkle 4s ease-in-out infinite;
+}
+
+.stars {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(2px 2px at 10% 20%, #d6b2a5, transparent 60%),
+    radial-gradient(3px 3px at 30% 10%, #d6b2a5, transparent 60%),
+    radial-gradient(1.5px 1.5px at 80% 35%, #d6b2a5, transparent 60%),
+    radial-gradient(2.5px 2.5px at 60% 50%, #d6b2a5, transparent 60%),
+    radial-gradient(1px 1px at 85% 60%, #d6b2a5, transparent 60%);
+}
+
+.merryChristmas2026 {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  svg {
+    // bad way to change positioning and size but easy
+    height: 28%; // makes it smaller
+    width: 100%; // this makes it center text
+    visibility: hidden;
+    position: absolute;
+    top: 10px;
+
+    @media (max-height: 700px) {
+      top: 50px;
+    }
+  }
+
+  /* Hide the text and year initially */
+  g#text > path,
+  g#text > g > path,
+  g#year > path {
+    opacity: 0;
+  }
+}
+
+#buttons {
+  text-align: center;
+  height: 100vh;
+  width: 100vw;
+  background: radial-gradient(circle at top, #1e293b, #020617);
+  h1 {
+    font-family: "Mountains of Christmas", cursive;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    margin-bottom: 2rem;
+    background: linear-gradient(90deg, #c62828, #f6c453, #2e7d32);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+
+    .xmas-btn {
+      position: relative;
+      border: none;
+      padding: 1.2rem 1.5rem;
+      border-radius: 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      overflow: hidden;
+      background: linear-gradient(135deg, #c62828, #2e7d32);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+      &:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 25px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(246, 196, 83, 0.6);
+      }
+    }
+    /* ===========================
+   SHIMMER BUTTON
+=========================== */
+    .btn-shimmer::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -120%;
+      width: 120%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      100% {
+        left: 120%;
+      }
+    }
+
+    /* ===========================
+   GLOW BUTTON
+=========================== */
+    .btn-glow {
+      background: linear-gradient(135deg, #7c2d12, #c62828);
+    }
+
+    .btn-glow::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: inherit;
+      background: radial-gradient(circle, #f6c453, transparent 70%);
+      opacity: 0.6;
+      filter: blur(20px);
+      z-index: -1;
+    }
+
+    /* ===========================
+   SNOW BUTTON
+=========================== */
+    .btn-snow {
+      background: linear-gradient(135deg, #1e3a8a, #0284c7);
+    }
+
+    .btn-snow span {
+      position: absolute;
+      top: -10px;
+      color: white;
+      animation: snow 4s linear infinite;
+      opacity: 0.8;
+    }
+
+    @keyframes snow {
+      to {
+        transform: translateY(120px);
+        opacity: 0;
+      }
+    }
+
+    /* ===========================
+   PULSE BUTTON
+=========================== */
+    .btn-pulse {
+      background: linear-gradient(135deg, #2e7d32, #16a34a);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.6);
+      }
+      50% {
+        box-shadow: 0 0 0 18px rgba(22, 163, 74, 0);
+      }
+    }
+
+    /* ===========================
+   RESPONSIVE TOUCH
+=========================== */
+    @media (hover: none) {
+      .xmas-btn:hover {
+        transform: none;
+        box-shadow: none;
+      }
+    }
+
+    // for class giving icons with before
+    .gift-btn::before {
+      content: "";
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+      vertical-align: middle;
+      background-image: url("./gift-solid-full.svg"); // <-------------------- // link me correctly
+      filter: brightness(0) invert(1);
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .star-btn::before {
+      content: "";
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+      vertical-align: middle;
+      background-image: url("./star-solid-full.svg"); // <-------------------- // link me correctly
+      filter: brightness(0) invert(1);
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .snow-btn::before {
+      content: "";
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+      vertical-align: middle;
+      background-image: url("./snowflake.svg"); // <-------------------- // link me correctly
+      filter: brightness(0) invert(1);
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .tree-btn::before {
+      content: "";
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+      vertical-align: middle;
+      background-image: url("./christmas-tree.svg"); // <-------------------- // link me correctly
+      filter: brightness(0) invert(1);
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .music-btn::before {
+      content: "";
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+      vertical-align: middle;
+      background-image: url("./lightbulb-solid-full.svg"); // <-------------------- // link me correctly
+      filter: brightness(0) invert(1);
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+  }
+}
+
+//===============
+
+#cool-background {
+  background: #3d6275;
+  width: 100vw;
+  display: flex;
+  position: relative;
+
+  @media (max-width: 768px) {
+    height: 500px;
+  }
+  // responsive bur image same size as section but on mobile versions if you make footer make sure everything fits cause its getting too small
+  svg {
+    width: 100%;
+    align-self: flex-start;
+  }
+
+  #santa {
+    animation: santa 3s infinite ease;
+  }
+
+  @keyframes santa {
+    0% {
+      transform: translateY(0%);
+    }
+    50% {
+      transform: translateY(20px);
+    }
+    100% {
+      transform: translateY(0%);
+    }
+  }
+
+  .st5 polygon {
+    animation: sparkleForSanta 1.5s infinite ease-in-out;
+    transform-origin: center;
+  }
+
+  .st5 polygon:nth-child(odd) {
+    animation-delay: 0s;
+  }
+  .st5 polygon:nth-child(even) {
+    animation-delay: 0.7s;
+  }
+
+  .snowflake {
+    @media (max-width: 1000px) {
+      animation-name: fallSnowResponsive;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      animation-delay: -2s;
+    }
+  }
+
+  @keyframes sparkleForSanta {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes fallSnow {
+    0% {
+      transform: translateY(-1vh) rotate(0deg);
+    }
+
+    25% {
+      transform: translateY(10vh) rotate(90deg) translateX(15px);
+    }
+
+    50% {
+      transform: translateY(30vh) rotate(180deg) translateX(-15px);
+    }
+
+    75% {
+      transform: translateY(45vh) rotate(270deg) translateX(15px);
+    }
+
+    100% {
+      transform: translateY(65vh) rotate(360deg) translateX(0);
+    }
+  }
+  @keyframes fallSnowResponsive {
+    0% {
+      transform: translateY(-1vh) rotate(0deg);
+    }
+
+    25% {
+      transform: translateY(10vh) rotate(90deg) translateX(15px);
+    }
+
+    50% {
+      transform: translateY(30vh) rotate(180deg) translateX(-15px);
+    }
+
+    75% {
+      transform: translateY(45vh) rotate(270deg) translateX(15px);
+    }
+
+    100% {
+      transform: translateY(50vh) rotate(360deg) translateX(0);
+    }
+  }
+}
+
+///=================//
+///
+///
+/// loading screen 1//
+
+#loading-scrn-1 {
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+  overflow: hidden;
+  //   position: relative;
+}
+
+canvas {
+  display: block;
+  z-index: 999;
+
+  @media (max-width: 1000px), (max-height: 786px) {
+    display: none;
+  }
+}
+
+#canvas {
+  position: absolute; /* or fixed if you want full-screen */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1; /* higher than snow */
+  pointer-events: auto; /* allow mouse interaction */
+}
