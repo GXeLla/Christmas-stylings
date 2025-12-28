@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Christmas Tree with Falling Dot Text</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: black;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+    <script>
+      const canvas = document.getElementById("c");
+      const ctx = canvas.getContext("2d");
+
+      let cw, ch, dpr;
+      function resize() {
+        dpr = window.devicePixelRatio || 1;
+        cw = window.innerWidth;
+        ch = window.innerHeight;
+        canvas.width = cw * dpr;
+        canvas.height = ch * dpr;
+        canvas.style.width = cw + "px";
+        canvas.style.height = ch + "px";
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      resize();
+
+      window.addEventListener("resize", () => {
+        resize();
+        initSnow();
+        initTextDots();
+      });
+
+      // ---------------- Mouse ----------------
+      let mouseX = -9999,
+        mouseY = -9999;
+      canvas.addEventListener("pointermove", (e) => {
+        const r = canvas.getBoundingClientRect();
+        mouseX = e.clientX - r.left;
+        mouseY = e.clientY - r.top;
+      });
+      canvas.addEventListener("pointerleave", () => {
+        mouseX = mouseY = -9999;
+      });
+
+      // ---------------- TREE DOTS (ORIGINAL) ----------------
+      const DOTS = 2150;
+      const dots = [];
+      for (let i = 0; i < DOTS; i++) {
+        dots.push({
+          t: i / (DOTS - 1),
+          a: Math.random() * Math.PI * 2,
+          phase: Math.random() * Math.PI * 2,
+          sparklePhase: Math.random() * Math.PI * 2,
+          sparkleSpeed: 0.05 + Math.random() * 0.1,
+          sparkleIntensity: Math.random(),
+        });
+      }
+
+      // ---------------- STUMP DOTS (ORIGINAL) ----------------
+      const STUMP_DOTS = 82;
+      const stump = [];
+      for (let i = 0; i < STUMP_DOTS; i++) {
+        stump.push({
+          a: Math.random() * Math.PI * 2,
+          y: Math.random(),
+          phase: Math.random() * Math.PI * 2,
+          sparklePhase: Math.random() * Math.PI * 2,
+          sparkleSpeed: 0.05 + Math.random() * 0.1,
+        });
+      }
+
+      // ---------------- SNOW (ORIGINAL) ----------------
+      const SNOW = 140;
+      const snow = [];
+      function initSnow() {
+        snow.length = 0;
+        for (let i = 0; i < SNOW; i++) {
+          snow.push({
+            x: Math.random() * cw,
+            y: Math.random() * ch,
+            s: Math.random() * 1.2 + 0.4,
+            v: Math.random() * 0.2 + 0.02,
+            blur: Math.random() * 1.5 + 0.5,
+          });
+        }
+      }
+      initSnow();
+
+      // ---------------- TEXT DOTS (FALLING EFFECT) ----------------
+      let textDots = [];
+      function initTextDots() {
+        textDots = [];
+        const offCanvas = document.createElement("canvas");
+        offCanvas.width = cw;
+        offCanvas.height = ch;
+        const offCtx = offCanvas.getContext("2d");
+
+        offCtx.fillStyle = "white";
+        // Responsive font size
+        const fontSize = Math.min(cw * 0.1, 80);
+        offCtx.font = `bold ${fontSize}px Arial`;
+        offCtx.textBaseline = "middle";
+
+        // Left text
+        offCtx.textAlign = "left";
+        offCtx.fillText("CLICK TO", 40, ch / 2);
+
+        // Right text
+        offCtx.textAlign = "right";
+        offCtx.fillText("OPEN", cw - 40, ch / 2);
+
+        const imageData = offCtx.getImageData(0, 0, cw, ch).data;
+        for (let y = 0; y < ch; y += 5) {
+          for (let x = 0; x < cw; x += 5) {
+            const index = (y * cw + x) * 4;
+            if (imageData[index + 3] > 128) {
+              textDots.push({
+                x: x,
+                y: -Math.random() * 400 - 50, // Start above screen
+                targetY: y,
+                size: 1 + Math.random() * 1.5,
+                v: 2.5 + Math.random() * 3, // Fall speed
+              });
+            }
+          }
+        }
+      }
+      initTextDots();
+
+      // ---------------- ANIMATION (ORIGINAL STATES) ----------------
+      let rot = 0;
+      let time = 0;
+      let loadingProgress = 0;
+      let brighteningProgress = 0;
+      let stumpBrighteningProgress = 0;
+      const LOADING_DURATION = 2;
+      const BRIGHTENING_DURATION = 4;
+
+      function draw() {
+        ctx.clearRect(0, 0, cw, ch);
+        rot += 0.0003;
+        time += 0.03;
+
+        if (loadingProgress < 1) {
+          loadingProgress += 0.016 / LOADING_DURATION;
+          if (loadingProgress > 1) loadingProgress = 1;
+        } else if (brighteningProgress < 1) {
+          brighteningProgress += 0.016 / BRIGHTENING_DURATION;
+          if (brighteningProgress > 1) brighteningProgress = 1;
+        } else if (stumpBrighteningProgress < 1) {
+          stumpBrighteningProgress += 0.016 / BRIGHTENING_DURATION;
+          if (stumpBrighteningProgress > 1) stumpBrighteningProgress = 1;
+        }
+
+        const bottomMargin = ch * 0.1;
+        const treeHeight = ch * 0.75;
+        const treeTop = ch - bottomMargin - treeHeight;
+        const baseRadius = 230;
+        const hoverRadius = 90;
+
+        // 1. Draw Original Snow
+        for (const s of snow) {
+          s.y += s.v;
+          if (s.y > ch) {
+            s.y = -5;
+            s.x = Math.random() * cw;
+          }
+          ctx.beginPath();
+          ctx.fillStyle = "rgba(255,255,255,0.35)";
+          ctx.shadowColor = "white";
+          ctx.shadowBlur = s.blur;
+          ctx.arc(s.x, s.y, s.s, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
+        // 2. Draw Original Tree Dots
+        for (const d of dots) {
+          if (d.t > loadingProgress) continue;
+          const brightenWave = brighteningProgress - d.t;
+          const dotBrightness = brightenWave > 0 ? Math.min(1, brightenWave * 3) : 0;
+          const profile = Math.pow(d.t, 0.75);
+          const r = profile * baseRadius;
+          const y = d.t * treeHeight;
+          const angle = d.a + rot;
+          const x = Math.cos(angle) * r;
+          const z = Math.sin(angle) * r;
+          const depth = (z + baseRadius) / (baseRadius * 2);
+          const baseSize = 1.6 + depth * 1.4;
+          const px = cw / 2 + x;
+          const py = treeTop + y;
+
+          const dx = px - mouseX;
+          const dy = py - mouseY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const isHovering = dist < hoverRadius;
+          const hoverIntensity = isHovering ? 1 - dist / hoverRadius : 0;
+
+          let sparkle = 0;
+          if (isHovering) {
+            d.sparklePhase += d.sparkleSpeed;
+            const sparkleWave = Math.sin(d.sparklePhase);
+            sparkle = sparkleWave > 0.85 ? ((sparkleWave - 0.85) / 0.15) * d.sparkleIntensity : 0;
+          }
+
+          const flicker = sparkle * (0.5 + Math.sin(time * 3 + d.phase) * 0.5);
+          const snowyEffect = hoverIntensity * 0.6;
+          const brightness = sparkle > 0.3 ? 1 + sparkle * 2 : 1 + snowyEffect;
+          const baseBrightness = 0.4 + dotBrightness * 0.7;
+          const rCol = Math.min(255, (255 + snowyEffect * 30) * brightness * baseBrightness);
+          const gCol = Math.min(255, (245 + sparkle * 10 + snowyEffect * 30) * brightness * baseBrightness);
+          const bCol = Math.min(255, (230 + sparkle * 25 + snowyEffect * 40) * brightness * baseBrightness);
+
+          if (sparkle > 0.2 || hoverIntensity > 0.3) {
+            const glowIntensity = Math.max(sparkle, hoverIntensity * 0.5);
+            ctx.shadowColor = `rgba(255,255,255,${Math.min(1, glowIntensity * 1.2 * dotBrightness)})`;
+            ctx.shadowBlur = 20 * glowIntensity * dotBrightness;
+          }
+
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(${rCol},${gCol},${bCol},${Math.min(
+            1,
+            (0.4 + sparkle * 0.8 + snowyEffect * 0.4) * baseBrightness
+          )})`;
+          ctx.arc(px, py, baseSize + flicker * 2.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
+        // 3. Draw Original Stump Dots
+        const stumpHeight = 75;
+        const stumpRadius = 18;
+        const stumpTop = ch - bottomMargin - stumpHeight + 10;
+        if (loadingProgress >= 1) {
+          for (const s of stump) {
+            const y = s.y * stumpHeight;
+            const angle = s.a + rot;
+            const x = Math.cos(angle) * stumpRadius;
+            const z = Math.sin(angle) * stumpRadius;
+            const px = cw / 2 + x;
+            const py = stumpTop + y;
+            ctx.beginPath();
+            ctx.fillStyle = `rgba(180,180,180,0.5)`;
+            ctx.arc(px, py, 1.6, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        // 4. Draw Falling Text Dots
+        // Trigger after the tree is fully brightened
+        if (brighteningProgress >= 0.5) {
+          for (const p of textDots) {
+            if (p.y < p.targetY) {
+              p.y += p.v;
+            } else {
+              // Add a very tiny "floating" movement once landed
+              p.y = p.targetY + Math.sin(time + p.x * 0.05) * 0.3;
+            }
+            ctx.beginPath();
+            ctx.fillStyle = "white";
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      draw();
+    </script>
+  </body>
+</html>

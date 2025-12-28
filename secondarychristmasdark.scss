@@ -1,0 +1,237 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  overflow: hidden;
+}
+
+.merryChristmas2026 {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  svg {
+    // bad way to change positioning and size but easy
+    height: 28%; // makes it smaller
+    width: 100%; // this makes it center text
+    visibility: hidden;
+    position: absolute;
+    top: 10px;
+
+    @media (max-height: 700px) {
+      top: 50px;
+    }
+  }
+
+  /* Hide the text and year initially */
+  g#text > path,
+  g#text > g > path,
+  g#year > path {
+    opacity: 0;
+  }
+}
+
+/* ===============================
+   SNOW
+================================ */
+.snow-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  pointer-events: none;
+  z-index: 0;
+
+  .snowflake {
+    position: absolute;
+    color: snow;
+    animation: fallSnow linear infinite;
+  }
+}
+
+/* ===============================
+   MAIN BACKGROUND
+================================ */
+#cool-background {
+  background: linear-gradient(to bottom, #365466 0%, #365466 74%, #3d6275 74%, #3d6275 100%);
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+
+  @media (max-width: 650px) {
+    background: linear-gradient(to bottom, #365466 0%, #365466 50%, #3d6275 50%, #3d6275 100%);
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    max-height: 100vh;
+    align-self: center;
+    display: block;
+  }
+
+  /* ===============================
+     SANTA
+  ================================ */
+  #santa {
+    animation: santa 3s infinite ease;
+  }
+
+  @keyframes santa {
+    0% {
+      transform: translateY(0%);
+    }
+    50% {
+      transform: translateY(20px);
+    }
+    100% {
+      transform: translateY(0%);
+    }
+  }
+
+  /* ===============================
+     STARS / SPARKLE
+  ================================ */
+  .st5 polygon {
+    animation: sparkleForSanta 1.5s infinite ease-in-out;
+    transform-origin: center;
+  }
+
+  .st5 polygon:nth-child(odd) {
+    animation-delay: 0s;
+  }
+
+  .st5 polygon:nth-child(even) {
+    animation-delay: 0.7s;
+  }
+
+  /* ===============================
+     SNOW RESPONSIVE
+  ================================ */
+  .snowflake {
+    @media (max-width: 1000px) {
+      animation-name: fallSnowResponsive;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      animation-delay: -2s;
+    }
+  }
+
+  @keyframes sparkleForSanta {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes fallSnow {
+    0% {
+      transform: translateY(-1vh) rotate(0deg);
+    }
+
+    25% {
+      transform: translateY(10vh) rotate(90deg) translateX(15px);
+    }
+
+    50% {
+      transform: translateY(30vh) rotate(180deg) translateX(-15px);
+    }
+
+    75% {
+      transform: translateY(45vh) rotate(270deg) translateX(15px);
+    }
+
+    100% {
+      transform: translateY(65vh) rotate(360deg) translateX(0);
+    }
+  }
+
+  @keyframes fallSnowResponsive {
+    0% {
+      transform: translateY(-1vh) rotate(0deg);
+    }
+
+    25% {
+      transform: translateY(10vh) rotate(90deg) translateX(15px);
+    }
+
+    50% {
+      transform: translateY(30vh) rotate(180deg) translateX(-15px);
+    }
+
+    75% {
+      transform: translateY(45vh) rotate(270deg) translateX(15px);
+    }
+
+    100% {
+      transform: translateY(50vh) rotate(360deg) translateX(0);
+    }
+  }
+}
+
+/* ===============================
+   SNOWFLAKE VARIANTS
+================================ */
+$snowflakes: (
+  (1, 5%, 8s, 18px),
+  (2, 10%, 12s, 21px),
+  (3, 15%, 9s, 16px),
+  (4, 20%, 14s, 20px),
+  (5, 25%, 7s, 18px),
+  (6, 30%, 11s, 28px),
+  (7, 35%, 10s, 30px),
+  (8, 40%, 13s, 27px),
+  (9, 45%, 8s, 12px),
+  (10, 50%, 8s, 18px),
+  (11, 55%, 12s, 31px),
+  (12, 60%, 9s, 20px),
+  (13, 65%, 14s, 16px),
+  (14, 70%, 7s, 32px),
+  (15, 75%, 11s, 17px),
+  (16, 80%, 10s, 25px),
+  (17, 85%, 13s, 17px),
+  (18, 90%, 8s, 32px)
+);
+
+@each $flake in $snowflakes {
+  .snowflake:nth-child(#{nth($flake, 1)}) {
+    left: nth($flake, 2);
+    animation-duration: nth($flake, 3);
+    animation-delay: -2s;
+    font-size: nth($flake, 4);
+  }
+}
+
+/* ===============================
+   GLOBAL FALLBACK SNOW
+================================ */
+@keyframes fallSnow {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+  }
+
+  25% {
+    transform: translateY(25vh) rotate(90deg) translateX(15px);
+  }
+
+  50% {
+    transform: translateY(50vh) rotate(180deg) translateX(-15px);
+  }
+
+  75% {
+    transform: translateY(75vh) rotate(270deg) translateX(15px);
+  }
+
+  100% {
+    transform: translateY(95vh) rotate(360deg) translateX(0);
+  }
+}

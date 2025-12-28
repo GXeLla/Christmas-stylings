@@ -1,0 +1,146 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background-color: #121f21;
+}
+
+.loader {
+  position: relative;
+  font-size: 12vw;
+  font-family: sans-serif;
+  font-weight: 800;
+  color: transparent;
+  -webkit-text-stroke: 0.1vw rgba(255, 255, 255, 0.4);
+}
+
+.loader::before {
+  content: attr(anim-text);
+  position: absolute;
+  height: 100%;
+  width: 10%;
+  color: cyan;
+  overflow: hidden;
+  -webkit-text-stroke: 0.2vw #121f21;
+  animation: loadingAnim 4s linear infinite;
+  opacity: 0.3;
+}
+.loader-text {
+  display: inline-block;
+  animation: subtleBounce 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes subtleBounce {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes loadingAnim {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  80% {
+    width: 100%;
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.wrapper {
+  position: absolute;
+  margin: auto;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 400px;
+  height: 400px;
+}
+
+.loader-outer {
+  position: absolute;
+  margin: auto;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 70vw;
+  max-width: 700px;
+  height: 50px;
+  border-radius: 20px;
+  border-bottom: 1px solid #303030;
+  background: #151515;
+  box-shadow: inset 0 0 10px 0 rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  z-index: 1;
+
+  transform: translateX(-50%);
+
+  @media (max-width: 768px) {
+    height: 30px;
+  }
+}
+.loader-inner {
+  position: absolute;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: -100px;
+  width: auto;
+  height: 58px;
+  text-align: center;
+  font-size: 60px;
+  z-index: 2;
+  animation: load 3s infinite linear;
+}
+img {
+  width: 50px;
+  height: 50px;
+  scale: 3;
+  opacity: 0.5;
+  animation: pulse 3s infinite alternate;
+  @media (max-width: 768px) {
+    scale: 2;
+  }
+}
+
+@keyframes load {
+  0% {
+    left: -100px;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(-0.7px 0 0.5px cyan); /* left side */
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 0 cyan); /* no shadow, center */
+  }
+  100% {
+    transform: scale(1.1);
+    filter: drop-shadow(2.7px 0 0.5px cyan); /* right side */
+  }
+}
