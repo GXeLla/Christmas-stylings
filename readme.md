@@ -21,4 +21,4 @@ Feel free to explore the code, tweak animations, and use the styles for your own
 ## License
 
 This project is open for personal and educational use. Enjoy and have fun styling! 🎅✨
-Feel free to use it.
+Feel free to use it! :)
